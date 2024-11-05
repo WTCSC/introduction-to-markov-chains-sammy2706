@@ -1,60 +1,37 @@
 import random
+import re
 
-"""
-Create the sample text and the dictionary to store word transitions
-
-TODO: Replace the sample text with a larger text for more interesting results
-"""
-text = "Mary had a little lamb its fleece was white as snow"
+text = "As the sun dipped below the horizon, the sky erupted into a canvas of deep oranges and purples. The quiet rustle of the leaves seemed louder in the stillness of the evening, each breeze carrying the scent of pine and damp earth. In the distance, the soft chirping of crickets filled the air, while the first stars began to twinkle, scattered like tiny diamonds across the darkening sky."
 transitions = {}
-
-"""
-Build the Markov Chain
-
-1. Split the text into words
-2. Iterate over the words
-3. For each word, add the next word to the list of transitions
-
-TODO: Handle punctuation and capitalization for better results
-"""
-words = text.split()
+# Adds spaces around punctuation marks for better grammar
+cleaned_text = re.sub(r"([.,!?;])", r" \1 ", text)
+# Splits the cleaned text into individual words
+words = cleaned_text.split()
 for i in range(len(words) - 1):
-    current_word = words[i]
+    current_word = words[i].lower() # Converts current word into lower case to make sure it knows what is capital or not
     next_word = words[i + 1]
     if current_word not in transitions:
         transitions[current_word] = []
     transitions[current_word].append(next_word)
 
-"""
-Generate new text using the Markov Chain, starting with a given word and
-generating a specified number of words:
-
-1. Start with the given word
-2. Add the word to the result list
-3. For the specified number of words:
-    a. If the current word is in the transitions dictionary, choose a random next word
-    b. Add the next word to the result list
-    c. Update the current word to the next word
-4. Return the generated text as a string
-
-TODO: Clean up the generated text for better formatting and readability,
-e.g., capitalization, punctuation, line breaks, etc.
-"""
-def generate_text(start_word, num_words):
+def generate_text(start_word, num_words, transitions):
     current_word = start_word
     result = [current_word]
+    result = [current_word.capitalize()]
     for _ in range(num_words - 1):
         if current_word in transitions:
             next_word = random.choice(transitions[current_word])
             result.append(next_word)
             current_word = next_word
         else:
-            break
-    return " ".join(result)
+            current_word = random.choice(list(transitions.keys())) # Selects random word from all keys
+            result.append(current_word) # Adds the randomly chose word to the result list
+    return " ".join(result) # Once the loop is done, it joins the list of words into a single string with spaces and returns results
 
-"""
-Example usage, generating 10 words starting with "Mary"
+# User interface
+start_word = input("Enter a starting word: ").strip()
+num_words = int(input("How many words would you like to generate? "))
 
-TODO: Accept user input for the starting word and number of words to generate
-"""
-print(generate_text("Mary", 10))
+generated_text = generate_text(start_word, num_words, transitions)
+print("\nGenerated Text:")
+print(generated_text)
